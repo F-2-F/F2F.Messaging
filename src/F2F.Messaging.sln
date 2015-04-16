@@ -10,9 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{14F5B2
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "F2F.Domain", "F2F.Domain\F2F.Domain.csproj", "{EB194B3E-0C50-4390-8220-13C86C7FDBB0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "F2F.Messaging", "F2F.Messaging\F2F.Messaging.csproj", "{EB194B3E-0C50-4390-8220-13C86C7FDBB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "F2F.Domain.UnitTests", "F2F.Domain.UnitTests\F2F.Domain.UnitTests.csproj", "{1FD5FF0B-71BE-4F77-910C-FE126CFADECC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "F2F.Messaging.UnitTests", "F2F.Messaging.UnitTests\F2F.Messaging.UnitTests.csproj", "{1FD5FF0B-71BE-4F77-910C-FE126CFADECC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

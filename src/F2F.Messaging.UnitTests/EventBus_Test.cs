@@ -2,31 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using F2F.Testing.Xunit.FakeItEasy;
 using FluentAssertions;
 using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.AutoFakeItEasy;
 using Xunit;
 
-namespace F2F.Domain.UnitTests
+namespace F2F.Messaging.UnitTests
 {
-	public class DomainEventBus_Test
+	public class EventBus_Test : AutoMockFeature
 	{
-		public class Moep : IDomainEvent
+		public class Moep : IEvent
 		{
-		}
-
-		private readonly IFixture Fixture;
-
-		public DomainEventBus_Test()
-		{
-			Fixture = new Fixture().Customize(new AutoFakeItEasyCustomization());
 		}
 
 		[Fact]
 		public void Execute_ShouldCallRegisteredHandlers()
 		{
 			// Arrange
-			var sut = Fixture.Create<DomainEventBus>();
+			var sut = Fixture.Create<EventBus>();
 			var msg = new Moep();
 			var o = sut.ListenTo<Moep>();
 
