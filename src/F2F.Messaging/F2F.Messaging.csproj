@@ -8,8 +8,8 @@
     <ProjectGuid>{EB194B3E-0C50-4390-8220-13C86C7FDBB0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>F2F.Domain</RootNamespace>
-    <AssemblyName>F2F.Domain</AssemblyName>
+    <RootNamespace>F2F.Messaging</RootNamespace>
+    <AssemblyName>F2F.Messaging</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -123,17 +123,19 @@
     <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ExecuteDelegateDomainCommand.cs" />
-    <Compile Include="DomainCommandBus.cs" />
-    <Compile Include="DomainEventBus.cs" />
-    <Compile Include="IDomainCommandBus.cs" />
-    <Compile Include="IDomainCommand.cs" />
-    <Compile Include="IDomainCommandExtensions.cs" />
-    <Compile Include="IDomainEvent.cs" />
-    <Compile Include="IDomainEventBus.cs" />
-    <Compile Include="ExecuteDomainCommand.cs" />
-    <Compile Include="IExecuteDomainCommand.cs" />
+    <Compile Include="ExecuteCommandOnFactory.cs" />
+    <Compile Include="ExecuteDelegateCommand.cs" />
+    <Compile Include="CommandBus.cs" />
+    <Compile Include="EventBus.cs" />
+    <Compile Include="ICommandBus.cs" />
+    <Compile Include="ICommand.cs" />
+    <Compile Include="ICommandExtensions.cs" />
+    <Compile Include="IEvent.cs" />
+    <Compile Include="IEventBus.cs" />
+    <Compile Include="ExecuteCommand.cs" />
+    <Compile Include="IExecuteCommand.cs" />
     <Compile Include="IStartTask.cs" />
+    <Compile Include="OnScheduler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="OnTaskPool.cs" />
   </ItemGroup>

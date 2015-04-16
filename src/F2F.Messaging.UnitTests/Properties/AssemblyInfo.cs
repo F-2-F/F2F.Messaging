@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("F2F.Domain")]
-[assembly: AssemblyDescription("F2F.Domain")]
+[assembly: AssemblyTitle("F2F.Messaging.UnitTests")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Art of Quality GmbH")]
-[assembly: AssemblyProduct("F2F.Domain")]
-[assembly: AssemblyCopyright("Copyright 2015 Art of Quality GmbH")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("F2F.Messaging.UnitTests")]
+[assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("87be7902-e482-401c-a89d-38e532b8bb06")]
+[assembly: Guid("7744c5d0-2b9c-4b75-949e-095c16f214c4")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -34,4 +34,3 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-[assembly: AssemblyInformationalVersion("1.0.0.0")]

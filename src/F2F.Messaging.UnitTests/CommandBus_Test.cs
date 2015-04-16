@@ -4,26 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using F2F.Testing.Xunit.FakeItEasy;
 using FakeItEasy;
 using FluentAssertions;
 using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.AutoFakeItEasy;
 using Xunit;
 using Xunit.Extensions;
 
-namespace F2F.Domain.UnitTests
+namespace F2F.Messaging.UnitTests
 {
-	public class DomainCommandBus_Test
+	public class CommandBus_Test : AutoMockFeature
 	{
-		public class Moep : IDomainCommand
+		public class Moep : ICommand
 		{
-		}
-
-		private readonly IFixture Fixture;
-
-		public DomainCommandBus_Test()
-		{
-			Fixture = new Fixture().Customize(new AutoFakeItEasyCustomization());
 		}
 
 		[Fact(Skip = "Dummy test")]
@@ -39,9 +32,9 @@ namespace F2F.Domain.UnitTests
 		public async Task Execute_ShouldCallRegisteredHandlers(int handlerCount)
 		{
 			// Arrange
-			var sut = Fixture.Create<DomainCommandBus>();
+			var sut = Fixture.Create<CommandBus>();
 			var cmd = new Moep();
-			var handlers = Fixture.CreateMany<IExecuteDomainCommand<Moep>>(handlerCount);
+			var handlers = Fixture.CreateMany<IExecuteCommand<Moep>>(handlerCount);
 
 			sut.Register(() => handlers);
 
@@ -60,9 +53,9 @@ namespace F2F.Domain.UnitTests
 		public async Task Execute_ReturnsTaskWhichWaitsForFinishingAllRegisteredHandlers(int handlerCount)
 		{
 			// Arrange
-			var sut = Fixture.Create<DomainCommandBus>();
+			var sut = Fixture.Create<CommandBus>();
 			var cmd = new Moep();
-			var handlers = Fixture.CreateMany<IExecuteDomainCommand<Moep>>(handlerCount);
+			var handlers = Fixture.CreateMany<IExecuteCommand<Moep>>(handlerCount);
 			int i = 0;
 
 			handlers
