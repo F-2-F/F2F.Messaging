@@ -5,7 +5,6 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
-using dbc = System.Diagnostics.Contracts;
 
 namespace F2F.Messaging
 {
@@ -15,18 +14,25 @@ namespace F2F.Messaging
 
 		public OnScheduler(IScheduler scheduler)
 		{
-			dbc.Contract.Requires<ArgumentNullException>(scheduler != null, "scheduler must not be null");
+			if (scheduler == null)
+				throw new ArgumentNullException("scheduler", "scheduler is null.");
 
 			_scheduler = scheduler;
 		}
 
 		public Task Start(Action work)
 		{
+			if (work == null)
+				throw new ArgumentNullException("work", "work is null.");
+
 			return Observable.Start(work, _scheduler).ToTask();
 		}
 
 		public Task<TResult> Start<TResult>(Func<TResult> work)
 		{
+			if (work == null)
+				throw new ArgumentNullException("work", "work is null.");
+
 			return Observable.Start(work, _scheduler).ToTask();
 		}
 	}

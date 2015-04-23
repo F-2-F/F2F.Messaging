@@ -14,6 +14,9 @@ namespace F2F.Messaging
 		public Task Execute<TCommand>(TCommand command)
 			where TCommand : class, ICommand
 		{
+			if (command == null)
+				throw new ArgumentNullException("command", "command is null.");
+
 			object value;
 			if (_handlers.TryGetValue(typeof(TCommand), out value)
 				&& value is Func<IEnumerable<IExecuteCommand<TCommand>>>)
@@ -32,6 +35,9 @@ namespace F2F.Messaging
 		public Task<TResult> Execute<TCommand, TResult>(TCommand command)
 			where TCommand : class, ICommand<TResult>
 		{
+			if (command == null)
+				throw new ArgumentNullException("command", "command is null.");
+
 			object value;
 			if (_handlers.TryGetValue(typeof(TCommand), out value)
 				&& value is Func<IExecuteCommand<TCommand, TResult>>)
@@ -50,12 +56,18 @@ namespace F2F.Messaging
 		public void Register<TCommand>(Func<IEnumerable<IExecuteCommand<TCommand>>> resolveHandlers)
 			where TCommand : class, ICommand
 		{
+			if (resolveHandlers == null)
+				throw new ArgumentNullException("resolveHandlers", "resolveHandlers is null.");
+
 			_handlers.AddOrUpdate(typeof(TCommand), resolveHandlers, (t, h) => resolveHandlers);
 		}
 
 		public void Register<TCommand, TResult>(Func<IExecuteCommand<TCommand, TResult>> resolveHandler)
 			where TCommand : class, ICommand<TResult>
 		{
+			if (resolveHandler == null)
+				throw new ArgumentNullException("resolveHandler", "resolveHandler is null.");
+
 			_handlers.AddOrUpdate(typeof(TCommand), resolveHandler, (t, h) => resolveHandler);
 		}
 	}
