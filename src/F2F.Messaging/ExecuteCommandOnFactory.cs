@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using dbc = System.Diagnostics.Contracts;
 
 namespace F2F.Messaging
 {
@@ -13,13 +12,17 @@ namespace F2F.Messaging
 
 		protected ExecuteCommandOnFactory(IStartTask factory)
 		{
-			dbc.Contract.Requires<ArgumentNullException>(factory != null, "factory must not be null");
+			if (factory == null)
+				throw new ArgumentNullException("factory", "factory is null.");
 
 			_factory = factory;
 		}
 
 		public Task ExecuteAsync(TCommand command)
 		{
+			if (command == null)
+				throw new ArgumentNullException("command", "command is null.");
+
 			return _factory.Start(() => Execute(command));
 		}
 
@@ -33,13 +36,17 @@ namespace F2F.Messaging
 
 		protected ExecuteCommandOnFactory(IStartTask factory)
 		{
-			dbc.Contract.Requires<ArgumentNullException>(factory != null, "factory must not be null");
+			if (factory == null)
+				throw new ArgumentNullException("factory", "factory is null.");
 
 			_factory = factory;
 		}
 
 		public Task<TResult> ExecuteAsync(TCommand command)
 		{
+			if (command == null)
+				throw new ArgumentNullException("command", "command is null.");
+
 			return _factory.Start(() => Execute(command));
 		}
 

@@ -16,6 +16,9 @@ namespace F2F.Messaging
 		public void Publish<TEvent>(TEvent message)
 			where TEvent : IEvent
 		{
+			if (message == null)
+				throw new ArgumentNullException("message", "message is null.");
+
 			object subject;
 			if (_subjects.TryGetValue(typeof(TEvent), out subject))
 			{
