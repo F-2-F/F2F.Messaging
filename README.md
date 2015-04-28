@@ -1,5 +1,10 @@
 # F2F.Messaging
 
+**Please note that this library is still under development!*
+
+Builds are available via NuGet as prereleases:
+- [F2F.Messaging](http://www.nuget.org/packages/F2F.Messaging/)
+
 Asynchronous messaging via Command Bus and Event Bus based on [Reactive Extensions](https://rx.codeplex.com/).
 
 ## Basic interfaces ##
