@@ -16,23 +16,23 @@ namespace F2F.Messaging
 			_handler = handler;
 		}
 
-		public Task ExecuteAsync(TCommand command)
+		public void Execute(TCommand command)
 		{
-			return _handler(command);
+			_handler(command);
 		}
 	}
 
 	public class ExecuteDelegateCommand<TCommand, TResult> : IExecuteCommand<TCommand, TResult>
 		where TCommand : ICommand<TResult>
 	{
-		private readonly Func<TCommand, Task<TResult>> _handler;
+		private readonly Func<TCommand, TResult> _handler;
 
-		public ExecuteDelegateCommand(Func<TCommand, Task<TResult>> handler)
+		public ExecuteDelegateCommand(Func<TCommand, TResult> handler)
 		{
 			_handler = handler;
 		}
 
-		public Task<TResult> ExecuteAsync(TCommand command)
+		public TResult Execute(TCommand command)
 		{
 			return _handler(command);
 		}

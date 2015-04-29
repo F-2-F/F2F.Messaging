@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using F2F.Testing.Xunit.FakeItEasy;
 using FakeItEasy;
 using FluentAssertions;
+using Microsoft.Reactive.Testing;
 using Ploeh.AutoFixture;
 using Xunit;
 using Xunit.Extensions;
@@ -15,12 +17,15 @@ namespace F2F.Messaging.UnitTests
 {
 	public class CommandBus_Test : AutoMockFeature
 	{
-		public class Moep : ICommand
+		public class DummyCommand : ICommand
 		{
 		}
 
-		[Fact(Skip = "Dummy test")]
-		public void Dummy()
+		public class DummyCommandWithResult : ICommand<DummyEvent>
+		{
+		}
+
+		public class DummyEvent : IEvent
 		{
 		}
 
@@ -29,20 +34,28 @@ namespace F2F.Messaging.UnitTests
 		[InlineData(2)]
 		[InlineData(5)]
 		[InlineData(50)]
-		public async Task Execute_ShouldCallRegisteredHandlers(int handlerCount)
+		public void Execute_ShouldCallRegisteredHandlers(int handlerCount)
 		{
 			// Arrange
-			var sut = Fixture.Create<CommandBus>();
-			var cmd = new Moep();
-			var handlers = Fixture.CreateMany<IExecuteCommand<Moep>>(handlerCount);
+			var scheduler = new TestScheduler();
+			Fixture.Inject<IScheduler>(scheduler);
 
+			var sut = Fixture.Create<CommandBus>();
+
+			var handlers = Fixture.CreateMany<IExecuteCommand<DummyCommand>>(handlerCount);
 			sut.Register(() => handlers);
 
+			var cmd = Fixture.Create<DummyCommand>();
+
 			// Act
-			await sut.Execute(cmd);
+			sut.Execute(cmd);
 
 			// Assert
-			handlers.ToList().ForEach(h => A.CallTo(() => h.ExecuteAsync(cmd)).MustHaveHappened());
+			handlers.ToList().ForEach(h => A.CallTo(() => h.Execute(cmd)).MustNotHaveHappened());
+
+			scheduler.AdvanceBy(1);
+
+			handlers.ToList().ForEach(h => A.CallTo(() => h.Execute(cmd)).MustHaveHappened());
 		}
 
 		[Theory]
@@ -50,29 +63,110 @@ namespace F2F.Messaging.UnitTests
 		[InlineData(2)]
 		[InlineData(5)]
 		[InlineData(50)]
-		public async Task Execute_ReturnsTaskWhichWaitsForFinishingAllRegisteredHandlers(int handlerCount)
+		public void Execute_ShouldReturnTaskWhichWaitsForFinishingAllRegisteredHandlers(int handlerCount)
 		{
 			// Arrange
+			var scheduler = new TestScheduler();
+			Fixture.Inject<IScheduler>(scheduler);
+
 			var sut = Fixture.Create<CommandBus>();
-			var cmd = new Moep();
-			var handlers = Fixture.CreateMany<IExecuteCommand<Moep>>(handlerCount);
-			int i = 0;
+
+			var handlers = Fixture.CreateMany<IExecuteCommand<DummyCommand>>(handlerCount);
+			sut.Register(() => handlers);
+
+			var cmd = Fixture.Create<DummyCommand>();
 
 			handlers
 				.ToList()
-				.ForEach(h =>
-					A.CallTo(() => h.ExecuteAsync(cmd))
-						.ReturnsLazily(() =>
-								Task.Delay(10)
-									.ContinueWith(_ => Interlocked.Increment(ref i))));
-
-			sut.Register(() => handlers);
+				.ForEach(h => A.CallTo(() => h.Execute(cmd)).Invokes(() => Task.Delay(1)));
 
 			// Act
-			await sut.Execute(cmd);
+			var t = sut.Execute(cmd);
 
 			// Assert
-			i.Should().Be(handlerCount);
+			t.IsCompleted.Should().BeFalse();
+
+			scheduler.AdvanceBy(1);
+
+			t.IsCompleted.Should().BeTrue();
+		}
+
+		[Fact]
+		public void Execute_CommandWithResult_ShouldCallRegisteredHandler()
+		{
+			// Arrange
+			var scheduler = new TestScheduler();
+			Fixture.Inject<IScheduler>(scheduler);
+
+			var sut = Fixture.Create<CommandBus>();
+
+			var handler = Fixture.Create<IExecuteCommand<DummyCommandWithResult, DummyEvent>>();
+			sut.Register(() => handler);
+
+			var cmd = Fixture.Create<DummyCommandWithResult>();
+
+			// Act
+			sut.Execute<DummyCommandWithResult, DummyEvent>(cmd);
+
+			// Assert
+			A.CallTo(() => handler.Execute(cmd)).MustNotHaveHappened();
+
+			scheduler.AdvanceBy(1);
+
+			A.CallTo(() => handler.Execute(cmd)).MustHaveHappened();
+		}
+
+		[Fact]
+		public void Execute_CommandWithResult_ShouldReturnTaskWhichWaitsForFinishingAllRegisteredHandler()
+		{
+			// Arrange
+			var scheduler = new TestScheduler();
+			Fixture.Inject<IScheduler>(scheduler);
+
+			var sut = Fixture.Create<CommandBus>();
+
+			var handler = Fixture.Create<IExecuteCommand<DummyCommandWithResult, DummyEvent>>();
+			sut.Register(() => handler);
+
+			var cmd = Fixture.Create<DummyCommandWithResult>();
+
+			A.CallTo(() => handler.Execute(cmd)).Invokes(() => Task.Delay(1));
+
+			// Act
+			var t = sut.Execute<DummyCommandWithResult, DummyEvent>(cmd);
+
+			// Assert
+			t.IsCompleted.Should().BeFalse();
+
+			scheduler.AdvanceBy(1);
+
+			t.IsCompleted.Should().BeTrue();
+		}
+
+		[Fact]
+		public void Execute_CommandWithResult_ShouldReturnExpectedResult()
+		{
+			// Arrange
+			var scheduler = new TestScheduler();
+			Fixture.Inject<IScheduler>(scheduler);
+
+			var sut = Fixture.Create<CommandBus>();
+
+			var handler = Fixture.Create<IExecuteCommand<DummyCommandWithResult, DummyEvent>>();
+			sut.Register(() => handler);
+
+			var cmd = Fixture.Create<DummyCommandWithResult>();
+			var ev = Fixture.Create<DummyEvent>();
+
+			A.CallTo(() => handler.Execute(cmd)).Returns(ev);
+
+			// Act
+			var t = sut.Execute<DummyCommandWithResult, DummyEvent>(cmd);
+
+			scheduler.AdvanceBy(1);
+
+			// Assert
+			t.Result.Should().Be(ev);
 		}
 	}
 }

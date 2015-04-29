@@ -2,6 +2,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,7 +12,16 @@ namespace F2F.Messaging
 {
 	public class CommandBus : ICommandBus
 	{
+		private readonly IScheduler _scheduler;
 		private readonly ConcurrentDictionary<Type, object> _handlers = new ConcurrentDictionary<Type, object>();
+
+		public CommandBus(IScheduler scheduler)
+		{
+			if (scheduler == null)
+				throw new ArgumentNullException("scheduler", "scheduler is null.");
+
+			_scheduler = scheduler;
+		}
 
 		public Task Execute<TCommand>(TCommand command)
 			where TCommand : class, ICommand
@@ -23,13 +35,19 @@ namespace F2F.Messaging
 			{
 				var resolver = value as Func<IEnumerable<IExecuteCommand<TCommand>>>;
 
-				return Task.WhenAll(resolver().Select(h => h.ExecuteAsync(command)));
+				return Task.WhenAll(resolver().Select(h => ExecuteAsync(h, command)));
 			}
 			else
 			{
 				throw new InvalidOperationException(
 					String.Format("There is no handler registered for {0}", typeof(TCommand)));
 			}
+		}
+
+		private Task ExecuteAsync<TCommand>(IExecuteCommand<TCommand> handler, TCommand command)
+			where TCommand : class, ICommand
+		{
+			return Observable.Start(() => handler.Execute(command), _scheduler).ToTask();
 		}
 
 		public Task<TResult> Execute<TCommand, TResult>(TCommand command)
@@ -44,13 +62,19 @@ namespace F2F.Messaging
 			{
 				var resolver = value as Func<IExecuteCommand<TCommand, TResult>>;
 
-				return resolver().ExecuteAsync(command);
+				return ExecuteAsync(resolver(), command);
 			}
 			else
 			{
 				throw new InvalidOperationException(
 					String.Format("There is no handler registered for {0}", typeof(TCommand)));
 			}
+		}
+
+		private Task<TResult> ExecuteAsync<TCommand, TResult>(IExecuteCommand<TCommand, TResult> handler, TCommand command)
+			where TCommand : class, ICommand<TResult>
+		{
+			return Observable.Start(() => handler.Execute(command), _scheduler).ToTask();
 		}
 
 		public void Register<TCommand>(Func<IEnumerable<IExecuteCommand<TCommand>>> resolveHandlers)

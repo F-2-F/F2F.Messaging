@@ -108,7 +108,6 @@
   <ItemGroup>
     <Compile Include="CommandBus_Test.cs" />
     <Compile Include="EventBus_Test.cs" />
-    <Compile Include="ExecuteCommandOnFactory_Test.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

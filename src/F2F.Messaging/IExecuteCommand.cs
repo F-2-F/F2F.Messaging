@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 namespace F2F.Messaging
 {
 	/// <summary>
-	/// A asynchronous command handler which accepts <see cref="ICommand"/>.
+	/// A command handler for a command.
 	/// </summary>
 	public interface IExecuteCommand<TCommand>
 		where TCommand : ICommand
 	{
-		Task ExecuteAsync(TCommand command);
+		void Execute(TCommand command);
 	}
 
 	/// <summary>
-	/// A asynchronous command handler which accepts <see cref="ICommand"/> and returns a result.
+	/// A command handler for a command with result.
 	/// </summary>
 	public interface IExecuteCommand<TCommand, TResult>
 		where TCommand : ICommand<TResult>
 	{
-		Task<TResult> ExecuteAsync(TCommand command);
+		TResult Execute(TCommand command);
 	}
 }
