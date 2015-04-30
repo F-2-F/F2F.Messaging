@@ -1,13 +1,13 @@
 # F2F.Messaging
 
-**Please note that this library is still under development!**
+F2F.Messaging is a portable .NET library which provides asynchronous messaging via Command Bus and Event Bus based on [Reactive Extensions](https://rx.codeplex.com/).
 
-Builds are available via NuGet as prereleases:
+Builds are available via NuGet:
 - [F2F.Messaging](http://www.nuget.org/packages/F2F.Messaging/)
 
-Asynchronous messaging via Command Bus and Event Bus based on [Reactive Extensions](https://rx.codeplex.com/).
-
 ## Basic interfaces ##
+
+The **CommandBus** executes commands asynchronously at registered command handlers.
 
 ```csharp
 public interface ICommandBus
@@ -25,6 +25,24 @@ public interface ICommandBus
 		where TCommand : class, ICommand<TResult>;
 }
 ```
+
+A command handler gets executed asynchronously and is scheduled by a given **IScheduler** at **CommandBus**.
+
+```csharp
+public interface IExecuteCommand<TCommand>
+	where TCommand : ICommand
+{
+	void Execute(TCommand command);
+}
+
+public interface IExecuteCommand<TCommand, TResult>
+	where TCommand : ICommand<TResult>
+{
+	TResult Execute(TCommand command);
+}
+```
+
+The **EventBus** provides publish / subscribe mechanism for messages based on [Rx](https://rx.codeplex.com/).
 
 ```csharp
 public interface IEventBus
