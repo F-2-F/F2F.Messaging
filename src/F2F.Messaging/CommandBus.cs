@@ -35,7 +35,7 @@ namespace F2F.Messaging
 			{
 				var resolver = value as Func<IEnumerable<IExecuteCommand<TCommand>>>;
 
-				return Task.WhenAll(resolver().Select(h => ExecuteAsync(h, command)));
+				return Task.WhenAll(resolver().Select(h => Schedule(h, command)));
 			}
 			else
 			{
@@ -44,7 +44,7 @@ namespace F2F.Messaging
 			}
 		}
 
-		private Task ExecuteAsync<TCommand>(IExecuteCommand<TCommand> handler, TCommand command)
+		private Task Schedule<TCommand>(IExecuteCommand<TCommand> handler, TCommand command)
 			where TCommand : class, ICommand
 		{
 			return Observable.Start(() => handler.Execute(command), _scheduler).ToTask();
@@ -62,7 +62,7 @@ namespace F2F.Messaging
 			{
 				var resolver = value as Func<IExecuteCommand<TCommand, TResult>>;
 
-				return ExecuteAsync(resolver(), command);
+				return Schedule(resolver(), command);
 			}
 			else
 			{
@@ -71,7 +71,7 @@ namespace F2F.Messaging
 			}
 		}
 
-		private Task<TResult> ExecuteAsync<TCommand, TResult>(IExecuteCommand<TCommand, TResult> handler, TCommand command)
+		private Task<TResult> Schedule<TCommand, TResult>(IExecuteCommand<TCommand, TResult> handler, TCommand command)
 			where TCommand : class, ICommand<TResult>
 		{
 			return Observable.Start(() => handler.Execute(command), _scheduler).ToTask();
