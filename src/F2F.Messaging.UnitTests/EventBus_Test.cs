@@ -20,7 +20,7 @@ namespace F2F.Messaging.UnitTests
 		}
 
 		[Fact]
-		public void Publish_ShouldCallRegisteredHandlers()
+		public void Publish_ShouldCallRegisteredSubscribers()
 		{
 			// Arrange
 			var sut = Fixture.Create<EventBus>();
@@ -44,7 +44,7 @@ namespace F2F.Messaging.UnitTests
 		[InlineData(2)]
 		[InlineData(5)]
 		[InlineData(50)]
-		public void Execute_ShouldCallRegisteredHandlers(int handlerCount)
+		public void Publish_ShouldCallRegisteredHandlers(int handlerCount)
 		{
 			// Arrange
 			var scheduler = new TestScheduler();
@@ -53,6 +53,36 @@ namespace F2F.Messaging.UnitTests
 			var sut = Fixture.Create<EventBus>();
 
 			var handlers = Fixture.CreateMany<IHandle<DummyEvent>>(handlerCount);
+			sut.Register(() => handlers);
+
+			var evt = Fixture.Create<DummyEvent>();
+
+			// Act
+			sut.Publish(evt);
+
+			// Assert
+			handlers.ToList().ForEach(h => A.CallTo(() => h.Handle(evt)).MustNotHaveHappened());
+
+			scheduler.AdvanceBy(1);
+
+			handlers.ToList().ForEach(h => A.CallTo(() => h.Handle(evt)).MustHaveHappened());
+		}
+
+
+		[Theory]
+		[InlineData(1)]
+		[InlineData(2)]
+		[InlineData(5)]
+		[InlineData(50)]
+		public void Publish_ShouldCallRegisteredAsyncHandlers(int handlerCount)
+		{
+			// Arrange
+			var scheduler = new TestScheduler();
+			Fixture.Inject<IScheduler>(scheduler);
+
+			var sut = Fixture.Create<EventBus>();
+
+			var handlers = Fixture.CreateMany<IHandleAsync<DummyEvent>>(handlerCount);
 			sut.Register(() => handlers);
 
 			var evt = Fixture.Create<DummyEvent>();

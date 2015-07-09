@@ -19,5 +19,8 @@ namespace F2F.Messaging
 
 		void Register<TEvent>(Func<IEnumerable<IHandle<TEvent>>> resolveHandlers)
 			where TEvent : class, IEvent;
+
+		void Register<TEvent>(Func<IEnumerable<IHandleAsync<TEvent>>> resolveHandlers)
+			where TEvent : class, IEvent;
 	}
 }

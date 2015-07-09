@@ -9,7 +9,7 @@ namespace F2F.Messaging
 	/// <summary>
 	/// A command handler for a command.
 	/// </summary>
-	public interface IExecuteCommand<TCommand>
+	public interface IExecute<TCommand>
 		where TCommand : ICommand
 	{
 		void Execute(TCommand command);
@@ -18,7 +18,7 @@ namespace F2F.Messaging
 	/// <summary>
 	/// A command handler for a command with result.
 	/// </summary>
-	public interface IExecuteCommand<TCommand, TResult>
+	public interface IExecute<TCommand, TResult>
 		where TCommand : ICommand<TResult>
 	{
 		TResult Execute(TCommand command);

@@ -17,10 +17,16 @@ namespace F2F.Messaging
 		Task<TResult> Execute<TCommand, TResult>(TCommand command)
 			where TCommand : class, ICommand<TResult>;
 
-		void Register<TCommand>(Func<IEnumerable<IExecuteCommand<TCommand>>> resolveHandlers)
+		void Register<TCommand>(Func<IEnumerable<IExecute<TCommand>>> resolveHandlers)
 			where TCommand : class, ICommand;
 
-		void Register<TCommand, TResult>(Func<IExecuteCommand<TCommand, TResult>> resolveHandler)
+		void Register<TCommand, TResult>(Func<IExecute<TCommand, TResult>> resolveHandler)
+			where TCommand : class, ICommand<TResult>;
+
+		void Register<TCommand>(Func<IEnumerable<IExecuteAsync<TCommand>>> resolveHandlers)
+			where TCommand : class, ICommand;
+
+		void Register<TCommand, TResult>(Func<IExecuteAsync<TCommand, TResult>> resolveHandler)
 			where TCommand : class, ICommand<TResult>;
 	}
 }
