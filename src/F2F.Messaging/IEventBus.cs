@@ -12,9 +12,12 @@ namespace F2F.Messaging
 	public interface IEventBus
 	{
 		void Publish<TEvent>(TEvent message)
-			where TEvent : IEvent;
+			where TEvent : class, IEvent;
 
 		IObservable<TEvent> ListenTo<TEvent>()
-			where TEvent : IEvent;
+			where TEvent : class, IEvent;
+
+		void Register<TEvent>(Func<IEnumerable<IHandle<TEvent>>> resolveHandlers)
+			where TEvent : class, IEvent;
 	}
 }
