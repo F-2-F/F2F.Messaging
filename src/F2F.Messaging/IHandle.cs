@@ -7,7 +7,7 @@ namespace F2F.Messaging
 {
 	public interface IHandle { }
 
-	public interface IHandle<TEvent> : IHandle
+	public interface IHandle<in TEvent> : IHandle
 	{
 		void Handle(TEvent @event);
 	}

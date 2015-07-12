@@ -7,7 +7,7 @@ namespace F2F.Messaging
 {
 	public interface IHandleAsync { }
 	
-	public interface IHandleAsync<TEvent> : IHandleAsync
+	public interface IHandleAsync<in TEvent> : IHandleAsync
 	{
 		Task Handle(TEvent @event);
 	}

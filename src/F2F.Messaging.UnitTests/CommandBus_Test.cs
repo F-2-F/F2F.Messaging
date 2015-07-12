@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -151,7 +152,56 @@ namespace F2F.Messaging.UnitTests
 			scheduler.AdvanceBy(1);
 
 			t.IsCompleted.Should().BeTrue();
+
+			handlers.ToList().ForEach(h => A.CallTo(() => h.Execute(cmd)).MustHaveHappened());
 		}
+
+		private class AsyncDummyHandler : IExecuteAsync<DummyCommand>
+		{
+			public async Task Execute(DummyCommand command)
+			{
+				await Task.Delay(1).ConfigureAwait(false);
+				await Task.Delay(1).ConfigureAwait(false);
+				await Task.Delay(1).ConfigureAwait(false);
+
+				Finished = true;
+			}
+
+			public bool Finished { get; set; }
+		}
+
+		[Theory]
+		[InlineData(1)]
+		[InlineData(2)]
+		[InlineData(5)]
+		[InlineData(50)]
+		public async Task Execute_ShouldReturnTaskWhichWaitsForFinishingAllRegisteredAsyncHandlers2(int handlerCount)
+		{
+			// Arrange
+			var scheduler = new TestScheduler();
+			Fixture.Inject<IScheduler>(scheduler);
+
+			var sut = Fixture.Create<CommandBus>();
+
+			var handlers = Fixture.CreateMany<AsyncDummyHandler>(handlerCount);
+			sut.RegisterAsyncHandlers(_ => handlers);
+
+			var cmd = Fixture.Create<DummyCommand>();
+
+			// Act
+			var t = sut.Execute(cmd);
+
+			t.IsCompleted.Should().BeFalse();
+
+			scheduler.AdvanceBy(5);
+
+			await t;
+			
+			t.IsCompleted.Should().BeTrue();
+
+			handlers.All(h => h.Finished);
+		}
+
 
 		[Fact]
 		public void Execute_CommandWithResult_ShouldCallRegisteredHandler()

@@ -61,10 +61,10 @@ namespace F2F.Messaging
 			return Observable.Start(() => handler.Execute(command), _scheduler).ToTask();
 		}
 
-		private Task Schedule<TCommand>(IExecuteAsync<TCommand> handler, TCommand command)
+		private async Task Schedule<TCommand>(IExecuteAsync<TCommand> handler, TCommand command)
 			where TCommand : class, ICommand
 		{
-			return Observable.Start(async () => await handler.Execute(command).ConfigureAwait(false), _scheduler).ToTask();
+			await Observable.Start(() => handler.Execute(command).Wait(), _scheduler).ToTask().ConfigureAwait(false);
 		}
 
 		public Task<TResult> Execute<TCommand, TResult>(TCommand command)
@@ -107,7 +107,7 @@ namespace F2F.Messaging
 		private async Task<TResult> Schedule<TCommand, TResult>(IExecuteAsync<TCommand, TResult> handler, TCommand command)
 			where TCommand : class, ICommand<TResult>
 		{
-			return await await Observable.Start(async () => await handler.Execute(command), _scheduler);
+			return await Observable.Start(() => handler.Execute(command).Result, _scheduler);
 		}
 
 		public void RegisterHandlers(Func<Type, IEnumerable<IExecute>> resolveHandlers)
