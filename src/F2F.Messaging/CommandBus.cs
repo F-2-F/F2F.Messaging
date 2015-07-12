@@ -13,8 +13,12 @@ namespace F2F.Messaging
 	public class CommandBus : ICommandBus
 	{
 		private readonly IScheduler _scheduler;
-		private readonly ConcurrentDictionary<Type, object> _handlers = new ConcurrentDictionary<Type, object>();
-		private readonly ConcurrentDictionary<Type, object> _asyncHandlers = new ConcurrentDictionary<Type, object>();
+		
+		private Func<Type, IEnumerable<IExecute>> _resolveHandlers;
+		private Func<Type, IEnumerable<IExecuteAsync>> _resolveAsyncHandlers;
+
+		private Func<Type, Type, IExecuteWithResult> _resolveHandlerWithResult;
+		private Func<Type, Type, IExecuteAsyncWithResult> _resolveAsyncHandlerWithResult;
 
 		public CommandBus(IScheduler scheduler)
 		{
@@ -22,6 +26,9 @@ namespace F2F.Messaging
 				throw new ArgumentNullException("scheduler", "scheduler is null.");
 
 			_scheduler = scheduler;
+
+			_resolveHandlers = _ => Enumerable.Empty<IExecute>();
+			_resolveAsyncHandlers = _ => Enumerable.Empty<IExecuteAsync>();
 		}
 
 		public Task Execute<TCommand>(TCommand command)
@@ -29,29 +36,17 @@ namespace F2F.Messaging
 		{
 			if (command == null)
 				throw new ArgumentNullException("command", "command is null.");
-			
-			object handlerFactory;
-			var handlerFound = 
-				_handlers.TryGetValue(typeof(TCommand), out handlerFactory)
-				&& handlerFactory is Func<IEnumerable<IExecute<TCommand>>>;
 
-			object asyncHandlerFactory;
-			var asyncHandlerFound =
-				_asyncHandlers.TryGetValue(typeof(TCommand), out asyncHandlerFactory)
-				&& asyncHandlerFactory is Func<IEnumerable<IExecuteAsync<TCommand>>>;
+			var handlers =
+				_resolveHandlers(typeof(TCommand)).OfType<IExecute<TCommand>>();
 
-			if (handlerFound || asyncHandlerFound)
+			var asyncHandlers = 
+				_resolveAsyncHandlers(typeof(TCommand)).OfType<IExecuteAsync<TCommand>>();
+
+			if (handlers.Any() || asyncHandlers.Any())
 			{
-				var createHandlers = 
-					handlerFactory as Func<IEnumerable<IExecute<TCommand>>>
-					?? (() => Enumerable.Empty<IExecute<TCommand>>());
-
-				var createAsyncHandlers = 
-					asyncHandlerFactory as Func<IEnumerable<IExecuteAsync<TCommand>>> 
-					?? (() => Enumerable.Empty<IExecuteAsync<TCommand>>());
-
-				return Task.WhenAll(createHandlers().Select(h => Schedule(h, command))
-							.Concat(createAsyncHandlers().Select(h => Schedule(h, command))));
+				return Task.WhenAll(handlers.Select(h => Schedule(h, command))
+							.Concat(asyncHandlers.Select(h => Schedule(h, command))));
 			}
 			else
 			{
@@ -78,27 +73,23 @@ namespace F2F.Messaging
 			if (command == null)
 				throw new ArgumentNullException("command", "command is null.");
 
-			object handler;
-			var handlerFound = 
-				_handlers.TryGetValue(typeof(TCommand), out handler)
-				&& handler is Func<IExecute<TCommand, TResult>>;
+			var handler = 
+				_resolveHandlerWithResult == null 
+				? null
+				: _resolveHandlerWithResult(typeof(TCommand), typeof(TResult)) as IExecute<TCommand, TResult>;
 
-			object asyncHandler;
-			var asyncHandlerFound =
-				_asyncHandlers.TryGetValue(typeof(TCommand), out asyncHandler)
-				&& asyncHandler is Func<IExecuteAsync<TCommand, TResult>>;
+			var asyncHandler = 
+				_resolveAsyncHandlerWithResult == null 
+				? null
+				: _resolveAsyncHandlerWithResult(typeof(TCommand), typeof(TResult)) as IExecuteAsync<TCommand, TResult>;
 
-			if (handlerFound)
+			if (handler != null)
 			{
-				var createHandler = handler as Func<IExecute<TCommand, TResult>>;
-
-				return Schedule(createHandler(), command);
+				return Schedule(handler, command);
 			}
-			else if (asyncHandlerFound)
+			else if (asyncHandler != null)
 			{
-				var createHandler = asyncHandler as Func<IExecuteAsync<TCommand, TResult>>;
-
-				return Schedule(createHandler(), command);
+				return Schedule(asyncHandler, command);
 			}
 			else
 			{
@@ -119,40 +110,36 @@ namespace F2F.Messaging
 			return await await Observable.Start(async () => await handler.Execute(command), _scheduler);
 		}
 
-		public void Register<TCommand>(Func<IEnumerable<IExecute<TCommand>>> resolveHandlers)
-			where TCommand : class, ICommand
+		public void RegisterHandlers(Func<Type, IEnumerable<IExecute>> resolveHandlers)
 		{
 			if (resolveHandlers == null)
 				throw new ArgumentNullException("resolveHandlers", "resolveHandlers is null.");
 
-			_handlers.AddOrUpdate(typeof(TCommand), resolveHandlers, (_, __) => resolveHandlers);
+			_resolveHandlers = resolveHandlers;
 		}
 
-		public void Register<TCommand>(Func<IEnumerable<IExecuteAsync<TCommand>>> resolveHandlers) where TCommand : class, ICommand
+		public void RegisterAsyncHandlers(Func<Type, IEnumerable<IExecuteAsync>> resolveAsyncHandlers)
 		{
-			if (resolveHandlers == null)
-				throw new ArgumentNullException("resolveHandlers", "resolveHandlers is null.");
+			if (resolveAsyncHandlers == null)
+				throw new ArgumentNullException("resolveAsyncHandlers", "resolveAsyncHandlers is null.");
 
-			_asyncHandlers.AddOrUpdate(typeof(TCommand), resolveHandlers, (_, __) => resolveHandlers);
+			_resolveAsyncHandlers = resolveAsyncHandlers;
 		}
 
-		// TODO: Should throw exception if more than one handler is registered for same TCommand / TResult combination
-
-		public void Register<TCommand, TResult>(Func<IExecute<TCommand, TResult>> resolveHandler)
-			where TCommand : class, ICommand<TResult>
+		public void RegisterHandler(Func<Type, Type, IExecuteWithResult> resolveHandler)
 		{
 			if (resolveHandler == null)
 				throw new ArgumentNullException("resolveHandler", "resolveHandler is null.");
 
-			_handlers.AddOrUpdate(typeof(TCommand), resolveHandler, (_, __) => resolveHandler);
+			_resolveHandlerWithResult = resolveHandler;
 		}
 
-		public void Register<TCommand, TResult>(Func<IExecuteAsync<TCommand, TResult>> resolveHandler) where TCommand : class, ICommand<TResult>
+		public void RegisterAsyncHandler(Func<Type, Type, IExecuteAsyncWithResult> resolveAsyncHandler)
 		{
-			if (resolveHandler == null)
-				throw new ArgumentNullException("resolveHandler", "resolveHandler is null.");
+			if (resolveAsyncHandler == null)
+				throw new ArgumentNullException("resolveAsyncHandler", "resolveAsyncHandler is null.");
 
-			_asyncHandlers.AddOrUpdate(typeof(TCommand), resolveHandler, (_, __) => resolveHandler);
+			_resolveAsyncHandlerWithResult = resolveAsyncHandler;
 		}
 	}
 }

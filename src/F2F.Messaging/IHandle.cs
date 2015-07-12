@@ -5,7 +5,9 @@ using System.Text;
 
 namespace F2F.Messaging
 {
-	public interface IHandle<TEvent>
+	public interface IHandle { }
+
+	public interface IHandle<TEvent> : IHandle
 	{
 		void Handle(TEvent @event);
 	}

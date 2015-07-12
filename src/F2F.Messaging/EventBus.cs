@@ -13,9 +13,9 @@ namespace F2F.Messaging
 	public class EventBus : IEventBus
 	{
 		private readonly IScheduler _scheduler;
-		
-		private readonly ConcurrentDictionary<Type, object> _handlers = new ConcurrentDictionary<Type, object>();
-		private readonly ConcurrentDictionary<Type, object> _asyncHandlers = new ConcurrentDictionary<Type, object>();
+
+		private Func<Type, IEnumerable<IHandle>> _resolveHandlers;
+		private Func<Type, IEnumerable<IHandleAsync>> _resolveAsyncHandlers;
 
 		private readonly ConcurrentDictionary<Type, object> _subjects = new ConcurrentDictionary<Type, object>();
 
@@ -25,6 +25,9 @@ namespace F2F.Messaging
 				throw new ArgumentNullException("scheduler", "scheduler is null.");
 			
 			_scheduler = scheduler;
+
+			_resolveHandlers = _ => Enumerable.Empty<IHandle>();
+			_resolveAsyncHandlers = _ => Enumerable.Empty<IHandleAsync>();
 		}
 
 		public void Publish<TEvent>(TEvent message)
@@ -35,9 +38,9 @@ namespace F2F.Messaging
 
 			NotifySubjects<TEvent>(message);
 
-			NotifyHandlers<TEvent>(message);
-
 			NotifyAsyncHandlers<TEvent>(message);
+
+			NotifyHandlers<TEvent>(message);
 		}
 
 		private void NotifySubjects<TEvent>(TEvent message)
@@ -50,36 +53,42 @@ namespace F2F.Messaging
 			}
 		}
 
-		private void NotifyHandlers<TEvent>(TEvent message)
-			where TEvent : class, IEvent
+		private IEnumerable<IHandle<TEvent>> ResolveHandlers<TEvent>()
 		{
-			object handlerFactory;
-			if (_handlers.TryGetValue(typeof(TEvent), out handlerFactory)
-				&& handlerFactory is Func<IEnumerable<IHandle<TEvent>>>)
-			{
-				var resolver = handlerFactory as Func<IEnumerable<IHandle<TEvent>>>;
+			var handlers = _resolveHandlers(typeof(TEvent));
 
-				foreach (var handler in resolver())
-				{
-					Schedule(handler, message);
-				}
+			foreach (var handler in handlers)
+			{
+				yield return handler as IHandle<TEvent>;
 			}
 		}
 
+		private void NotifyHandlers<TEvent>(TEvent message)
+			where TEvent : class, IEvent
+		{
+			foreach (var handler in ResolveHandlers<TEvent>())
+			{
+				Schedule(handler, message);
+			}			
+		}
+
+		private IEnumerable<IHandleAsync<TEvent>> ResolveAsyncHandlers<TEvent>()
+		{
+			var handlers = _resolveAsyncHandlers(typeof(TEvent));
+
+			foreach (var handler in handlers)
+			{
+				yield return handler as IHandleAsync<TEvent>;
+			}
+		}
+		
 		private void NotifyAsyncHandlers<TEvent>(TEvent message)
 			where TEvent : class, IEvent
 		{
-			object handlerFactory;
-			if (_asyncHandlers.TryGetValue(typeof(TEvent), out handlerFactory)
-				&& handlerFactory is Func<IEnumerable<IHandleAsync<TEvent>>>)
+			foreach (var handler in ResolveAsyncHandlers<TEvent>())
 			{
-				var resolver = handlerFactory as Func<IEnumerable<IHandleAsync<TEvent>>>;
-
-				foreach (var handler in resolver())
-				{
-					Schedule(handler, message);
-				}
-			}
+				Schedule(handler, message);
+			}			
 		}
 
 		public IObservable<TEvent> ListenTo<TEvent>()
@@ -90,14 +99,14 @@ namespace F2F.Messaging
 			return subject.AsObservable();
 		}
 
-		public void Register<TEvent>(Func<IEnumerable<IHandle<TEvent>>> resolveHandlers) where TEvent : class, IEvent
+		public void RegisterHandlers(Func<Type, IEnumerable<IHandle>> resolveHandlers)
 		{
 			if (resolveHandlers == null)
 				throw new ArgumentNullException("resolveHandlers", "resolveHandlers is null.");
 
-			_handlers.AddOrUpdate(typeof(TEvent), resolveHandlers, (_, __) => resolveHandlers);
+			_resolveHandlers = resolveHandlers;
 		}
-
+		
 		private Task Schedule<TEvent>(IHandle<TEvent> handler, TEvent @event)
 			where TEvent : class, IEvent
 		{
@@ -110,12 +119,12 @@ namespace F2F.Messaging
 			 return Observable.Start(async () => await handler.Handle(@event).ConfigureAwait(false), _scheduler).ToTask();
 		}
 
-		public void Register<TEvent>(Func<IEnumerable<IHandleAsync<TEvent>>> resolveHandlers) where TEvent : class, IEvent
+		public void RegisterAsyncHandlers(Func<Type, IEnumerable<IHandleAsync>> resolveAsyncHandlers)
 		{
-			if (resolveHandlers == null)
-				throw new ArgumentNullException("resolveHandlers", "resolveHandlers is null.");
+			if (resolveAsyncHandlers == null)
+				throw new ArgumentNullException("resolveAsyncHandlers", "resolveAsyncHandlers is null.");
 
-			_asyncHandlers.AddOrUpdate(typeof(TEvent), resolveHandlers, (_, __) => resolveHandlers);
+			_resolveAsyncHandlers = resolveAsyncHandlers;
 		}
 	}
 }

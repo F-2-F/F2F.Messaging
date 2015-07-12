@@ -43,7 +43,7 @@ namespace F2F.Messaging.UnitTests
 			var sut = Fixture.Create<CommandBus>();
 
 			var handlers = Fixture.CreateMany<IExecute<DummyCommand>>(handlerCount);
-			sut.Register(() => handlers);
+			sut.RegisterHandlers(_ => handlers);
 
 			var cmd = Fixture.Create<DummyCommand>();
 
@@ -72,7 +72,7 @@ namespace F2F.Messaging.UnitTests
 			var sut = Fixture.Create<CommandBus>();
 
 			var handlers = Fixture.CreateMany<IExecuteAsync<DummyCommand>>(handlerCount);
-			sut.Register(() => handlers);
+			sut.RegisterAsyncHandlers(_ => handlers);
 
 			var cmd = Fixture.Create<DummyCommand>();
 
@@ -101,7 +101,7 @@ namespace F2F.Messaging.UnitTests
 			var sut = Fixture.Create<CommandBus>();
 
 			var handlers = Fixture.CreateMany<IExecute<DummyCommand>>(handlerCount);
-			sut.Register(() => handlers);
+			sut.RegisterHandlers(_ => handlers);
 
 			var cmd = Fixture.Create<DummyCommand>();
 
@@ -134,7 +134,7 @@ namespace F2F.Messaging.UnitTests
 			var sut = Fixture.Create<CommandBus>();
 
 			var handlers = Fixture.CreateMany<IExecuteAsync<DummyCommand>>(handlerCount);
-			sut.Register(() => handlers);
+			sut.RegisterAsyncHandlers(_ => handlers);
 
 			var cmd = Fixture.Create<DummyCommand>();
 
@@ -163,7 +163,7 @@ namespace F2F.Messaging.UnitTests
 			var sut = Fixture.Create<CommandBus>();
 
 			var handler = Fixture.Create<IExecute<DummyCommandWithResult, DummyEvent>>();
-			sut.Register(() => handler);
+			sut.RegisterHandler((_, __) => handler);
 
 			var cmd = Fixture.Create<DummyCommandWithResult>();
 
@@ -188,7 +188,7 @@ namespace F2F.Messaging.UnitTests
 			var sut = Fixture.Create<CommandBus>();
 
 			var handler = Fixture.Create<IExecuteAsync<DummyCommandWithResult, DummyEvent>>();
-			sut.Register(() => handler);
+			sut.RegisterAsyncHandler((_, __) => handler);
 
 			var cmd = Fixture.Create<DummyCommandWithResult>();
 
@@ -213,7 +213,7 @@ namespace F2F.Messaging.UnitTests
 			var sut = Fixture.Create<CommandBus>();
 
 			var handler = Fixture.Create<IExecute<DummyCommandWithResult, DummyEvent>>();
-			sut.Register(() => handler);
+			sut.RegisterHandler((_, __) => handler);
 
 			var cmd = Fixture.Create<DummyCommandWithResult>();
 
@@ -241,7 +241,7 @@ namespace F2F.Messaging.UnitTests
 			var sut = Fixture.Create<CommandBus>();
 
 			var handler = Fixture.Create<IExecuteAsync<DummyCommandWithResult, DummyEvent>>();
-			sut.Register(() => handler);
+			sut.RegisterAsyncHandler((_, __) => handler);
 
 			var cmd = Fixture.Create<DummyCommandWithResult>();
 
@@ -268,7 +268,7 @@ namespace F2F.Messaging.UnitTests
 			var sut = Fixture.Create<CommandBus>();
 
 			var handler = Fixture.Create<IExecute<DummyCommandWithResult, DummyEvent>>();
-			sut.Register(() => handler);
+			sut.RegisterHandler((_, __) => handler);
 
 			var cmd = Fixture.Create<DummyCommandWithResult>();
 			var ev = Fixture.Create<DummyEvent>();
@@ -295,7 +295,7 @@ namespace F2F.Messaging.UnitTests
 			var sut = Fixture.Create<CommandBus>();
 
 			var handler = Fixture.Create<IExecuteAsync<DummyCommandWithResult, DummyEvent>>();
-			sut.Register(() => handler);
+			sut.RegisterAsyncHandler((_, __) => handler);
 
 			var cmd = Fixture.Create<DummyCommandWithResult>();
 			var ev = Fixture.Create<DummyEvent>();

@@ -5,19 +5,22 @@ using System.Threading.Tasks;
 
 namespace F2F.Messaging
 {
+	public interface IExecuteAsync { }
 	/// <summary>
 	/// A command handler for a command.
 	/// </summary>
-	public interface IExecuteAsync<TCommand>
+	public interface IExecuteAsync<TCommand> : IExecuteAsync
 		where TCommand : ICommand
 	{
 		Task Execute(TCommand command);
 	}
 
+	public interface IExecuteAsyncWithResult { }
+
 	/// <summary>
 	/// A command handler for a command with result.
 	/// </summary>
-	public interface IExecuteAsync<TCommand, TResult>
+	public interface IExecuteAsync<TCommand, TResult> : IExecuteAsyncWithResult
 		where TCommand : ICommand<TResult>
 	{
 		Task<TResult> Execute(TCommand command);

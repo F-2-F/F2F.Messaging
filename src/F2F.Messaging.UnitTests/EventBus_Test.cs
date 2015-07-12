@@ -53,7 +53,7 @@ namespace F2F.Messaging.UnitTests
 			var sut = Fixture.Create<EventBus>();
 
 			var handlers = Fixture.CreateMany<IHandle<DummyEvent>>(handlerCount);
-			sut.Register(() => handlers);
+			sut.RegisterHandlers(_ => handlers);
 
 			var evt = Fixture.Create<DummyEvent>();
 
@@ -83,7 +83,7 @@ namespace F2F.Messaging.UnitTests
 			var sut = Fixture.Create<EventBus>();
 
 			var handlers = Fixture.CreateMany<IHandleAsync<DummyEvent>>(handlerCount);
-			sut.Register(() => handlers);
+			sut.RegisterAsyncHandlers(_ => handlers);
 
 			var evt = Fixture.Create<DummyEvent>();
 

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace F2F.Messaging
 {
@@ -17,10 +15,8 @@ namespace F2F.Messaging
 		IObservable<TEvent> ListenTo<TEvent>()
 			where TEvent : class, IEvent;
 
-		void Register<TEvent>(Func<IEnumerable<IHandle<TEvent>>> resolveHandlers)
-			where TEvent : class, IEvent;
+		void RegisterHandlers(Func<Type, IEnumerable<IHandle>> resolveHandlers);
 
-		void Register<TEvent>(Func<IEnumerable<IHandleAsync<TEvent>>> resolveHandlers)
-			where TEvent : class, IEvent;
+		void RegisterAsyncHandlers(Func<Type, IEnumerable<IHandleAsync>> resolveHandlers);
 	}
 }

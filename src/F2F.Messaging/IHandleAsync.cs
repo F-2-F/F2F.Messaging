@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 
 namespace F2F.Messaging
 {
-	public interface IHandleAsync<TEvent>
+	public interface IHandleAsync { }
+	
+	public interface IHandleAsync<TEvent> : IHandleAsync
 	{
 		Task Handle(TEvent @event);
 	}
