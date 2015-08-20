@@ -1,26 +1,29 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace F2F.Messaging
 {
+	public interface IExecuteAsync { }
 	/// <summary>
 	/// A command handler for a command.
 	/// </summary>
-	public interface IExecuteCommand<TCommand>
+	public interface IExecuteAsync<in TCommand> : IExecuteAsync
 		where TCommand : ICommand
 	{
-		void Execute(TCommand command);
+		Task Execute(TCommand command);
 	}
+
+	public interface IExecuteAsyncWithResult { }
 
 	/// <summary>
 	/// A command handler for a command with result.
 	/// </summary>
-	public interface IExecuteCommand<TCommand, TResult>
+	public interface IExecuteAsync<in TCommand, TResult> : IExecuteAsyncWithResult
 		where TCommand : ICommand<TResult>
 	{
-		TResult Execute(TCommand command);
+		Task<TResult> Execute(TCommand command);
 	}
+
 }

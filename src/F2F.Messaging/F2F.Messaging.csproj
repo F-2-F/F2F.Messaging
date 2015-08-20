@@ -44,8 +44,13 @@
     <Compile Include="ICommandExtensions.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="IEventBus.cs" />
-    <Compile Include="IExecuteCommand.cs" />
+    <Compile Include="IEventBusExtensions.cs" />
+    <Compile Include="IExecute.cs" />
+    <Compile Include="IExecuteAsync.cs" />
+    <Compile Include="IHandle.cs" />
+    <Compile Include="IHandleAsync.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScopedEventBus.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Reactive.Core">

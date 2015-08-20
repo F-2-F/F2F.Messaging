@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace F2F.Messaging
@@ -17,10 +16,12 @@ namespace F2F.Messaging
 		Task<TResult> Execute<TCommand, TResult>(TCommand command)
 			where TCommand : class, ICommand<TResult>;
 
-		void Register<TCommand>(Func<IEnumerable<IExecuteCommand<TCommand>>> resolveHandlers)
-			where TCommand : class, ICommand;
+		void RegisterHandlers(Func<Type, IEnumerable<IExecute>> resolveHandlers);
 
-		void Register<TCommand, TResult>(Func<IExecuteCommand<TCommand, TResult>> resolveHandler)
-			where TCommand : class, ICommand<TResult>;
+		void RegisterAsyncHandlers(Func<Type, IEnumerable<IExecuteAsync>> resolveAsyncHandlers);
+
+		void RegisterHandler(Func<Type, Type, IExecuteWithResult> resolveHandler);
+
+		void RegisterAsyncHandler(Func<Type, Type, IExecuteAsyncWithResult> resolveAsyncHandler);
 	}
 }

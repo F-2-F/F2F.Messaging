@@ -117,7 +117,7 @@
   <ItemGroup>
     <ProjectReference Include="..\F2F.Messaging\F2F.Messaging.csproj">
       <Project>{eb194b3e-0c50-4390-8220-13c86c7fdbb0}</Project>
-      <Name>F2F.Domain</Name>
+      <Name>F2F.Messaging</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

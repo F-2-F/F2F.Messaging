@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace F2F.Messaging
 {
@@ -12,9 +10,13 @@ namespace F2F.Messaging
 	public interface IEventBus
 	{
 		void Publish<TEvent>(TEvent message)
-			where TEvent : IEvent;
+			where TEvent : class, IEvent;
 
 		IObservable<TEvent> ListenTo<TEvent>()
-			where TEvent : IEvent;
+			where TEvent : class, IEvent;
+
+		void RegisterHandlers(Func<Type, IEnumerable<IHandle>> resolveHandlers);
+
+		void RegisterAsyncHandlers(Func<Type, IEnumerable<IHandleAsync>> resolveHandlers);
 	}
 }

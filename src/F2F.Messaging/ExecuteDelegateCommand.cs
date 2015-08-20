@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace F2F.Messaging
 {
-	public class ExecuteDelegateCommand<TCommand> : IExecuteCommand<TCommand>
+	public class ExecuteDelegateCommand<TCommand> : IExecute<TCommand>
 		where TCommand : ICommand
 	{
 		private readonly Func<TCommand, Task> _handler;
@@ -22,7 +22,7 @@ namespace F2F.Messaging
 		}
 	}
 
-	public class ExecuteDelegateCommand<TCommand, TResult> : IExecuteCommand<TCommand, TResult>
+	public class ExecuteDelegateCommand<TCommand, TResult> : IExecute<TCommand, TResult>
 		where TCommand : ICommand<TResult>
 	{
 		private readonly Func<TCommand, TResult> _handler;
