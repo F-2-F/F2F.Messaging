@@ -6,6 +6,11 @@
     <Company>Florian Fordermaier, Florian Schinagl</Company>
     <Copyright>Copyright © Florian Fordermaier, Florian Schinagl 2015-2018</Copyright>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Version>2.0.0</Version>
+    <PackageProjectUrl>https://github.com/F-2-F/F2F.Messaging</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/F-2-F/F2F.Messaging/blob/master/LICENSE</PackageLicenseUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Florian Fordermaier, Florian Schinagl</Authors>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Reactive" Version="3.1.1" />
