@@ -1,6 +1,6 @@
 # F2F.Messaging
 
-F2F.Messaging is a portable .NET library which provides asynchronous messaging via Command Bus and Event Bus based on [Reactive Extensions](https://rx.codeplex.com/).
+F2F.Messaging is a .NET Standard 1.3 compatible library which provides asynchronous messaging via Command Bus and Event Bus based on [Reactive Extensions](https://rx.codeplex.com/).
 
 Builds are available via NuGet:
 - [F2F.Messaging](http://www.nuget.org/packages/F2F.Messaging/)
