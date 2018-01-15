@@ -6,16 +6,19 @@
     <Company>Florian Fordermaier, Florian Schinagl</Company>
     <Copyright>Copyright © Florian Fordermaier, Florian Schinagl 2015-2018</Copyright>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <PackageProjectUrl>https://github.com/F-2-F/F2F.Messaging</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/F-2-F/F2F.Messaging/blob/master/LICENSE</PackageLicenseUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Florian Fordermaier, Florian Schinagl</Authors>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Reactive" Version="3.1.1" />
+    <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <PackageReference Include="System.Reactive.Core" Version="3.1.1" />
+    <PackageReference Include="System.Reactive.Interfaces" Version="3.1.1" />
+    <PackageReference Include="System.Reactive.Linq" Version="3.1.1" />
+    <PackageReference Include="System.Reactive.PlatformServices" Version="3.1.1" />
   </ItemGroup>
 </Project>
